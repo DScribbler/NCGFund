@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NCGFund – National Credit Guarantee Fund</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .navbar {
+      background-color: #013601;
+      padding-bottom: 20px;
+      padding-top: 10px;
+    }
+
+    .navbar .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: -20px;
+    }
+
+    .logo img {
+      height: 50px;
+      
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: bold;
+    }
+
+    nav .btn {
+      background-color: #006a4e;
+      color: #006400;
+      padding: 8px 15px;
+      border-radius: 5px;
+    }
+
+    .slideshow-container {
+      position: relative;
+      max-width: 100%;
+      margin: auto;
+      overflow: hidden;
+    }
+
+    .slide {
+      display: none;
+      position: relative;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    .slide img {
+      width: 100%;
+      height: 570px;
+      object-fit: cover;
+    }
+
+    .caption {
+      position: absolute;
+      bottom: 40px;
+      left: 50px;
+      background-color: rgba(0,0,0,0.5);
+      color: #fff;
+      padding: 15px 25px;
+      font-size: 20px;
+      border-radius: 5px;
+    }
+
+    .hero {
+      background-color: #eaf7ea;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 28px;
+      margin-bottom: 15px;
+      color: #124412;
+    }
+
+    .hero p {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    .hero-btn {
+      background-color: #010c03;
+      color: #fff;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+
+    .features {
+      padding: 60px 20px;
+      background: #ffffff;
+    }
+
+    .features .container {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    .feature h3 {
+      color: #006400;
+      margin-bottom: 10px;
+    }
+
+    .feature p {
+      line-height: 1.6;
+    }
+
+    .footer {
+      background-color: #013601;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    @media (min-width: 768px) {
+      .features .container {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+
+      .feature {
+        flex: 1;
+        margin: 0 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="container">
+      <div class="logo"><img src="aa.png" alt="NCGFund Logo"></div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="index.php">About us</a>
+        <a href="login.php" class="btn">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="slideshow-container">
+    <div class="slide fade">
+      <img src="1.png" alt="Empowering Nigerians">
+      <div class="caption">Empowering Nigerians Through Financial Access</div>
+    </div>
+
+    <div class="slide fade">
+      <img src="2.png" alt="Youth Opportunities">
+      <div class="caption">Opportunities for Youth, Women, and Small Businesses</div>
+    </div>
+
+    <div class="slide fade">
+      <img src="3.png" alt="Apply Now">
+      <div class="caption">Apply for Grants, Loans & Support Nationwide</div>
+    </div>
+  </div>
+  <section class="hero">
+    <div class="container">
+      <h1>Interest-Free Financing Tailored for MSMEs, Startups, and Manufacturers</h1>
+      <p>Get access to higher business capital without the burden of interest.</p>
+      <a href="register.php" class="btn hero-btn">Register Now</a>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="container">
+      <div class="feature">
+        <h3>Interest-Free</h3>
+        <p>At NCGfund, all grants are provided 100% interest-free — no repayment, no hidden fees.
+          Our goal is to eliminate financial burdens, not create new ones. This ensures beneficiaries can focus on growth,
+          education, and innovation without the stress of debt. We believe true empowerment comes from access without 
+          strings attached.</p>
+      </div>
+      <div class="feature">
+        <h3>Quick & Easy Application</h3>
+        <p>Time is critical, and opportunity shouldn’t be delayed. That’s why NCGfund offers a streamlined, user-friendly application process designed to get support to those who need it — fast. With just a few required details, 
+          applicants can apply within minutes and track their status in real time. No red tape. No unnecessary delays.</p>
+      </div>
+      <div class="feature">
+        <h3>Secure & Private</h3>
+        <p>Your data is safe, encrypted, and confidential. NCGfund uses industry-grade security protocols to protect every applicant's personal and financial information. We are committed to maintaining 
+          the highest standards of privacy, ensuring your information is used solely to deliver the support you deserve.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; <?= date("Y") ?> NCGFund – National Credit Guarantee Fund</p>
+    </div>
+  </footer>
+
+  <script>
+    let slideIndex = 0;
+    showSlides();
+
+    function showSlides() {
+      const slides = document.getElementsByClassName("slide");
+      for (let i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";
+      }
+      slideIndex++;
+      if (slideIndex > slides.length) { slideIndex = 1 }
+      slides[slideIndex - 1].style.display = "block";
+      setTimeout(showSlides, 5000); // 5 seconds
+    }
+  </script>
+
+</body>
+</html>

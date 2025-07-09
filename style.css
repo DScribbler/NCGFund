@@ -1,0 +1,126 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f7f9f9;
+  color: #222;
+}
+
+.container {
+  width: 90%;
+  max-width: 1000px;
+  margin: auto;
+}
+
+.navbar {
+  background: #006a4e;
+  padding: 1rem 0;
+  height:40px;
+}
+
+.navbar .logo {
+  color: white;
+  font-size: 24px;
+  float: left;
+  font-weight: bold;
+}
+
+.navbar nav {
+  float: right;
+}
+
+.navbar nav a {
+  color: white;
+  text-decoration: none;
+  margin-left: 20px;
+  font-weight: 500;
+}
+
+.btn {
+  background: #00a86b;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.btn:hover {
+  background: #008f5a;
+}
+
+.hero {
+  background: linear-gradient(135deg, #f5f8f7 0%, #013601 100%);
+  color: white;
+  text-align: center;
+  padding: 80px 20px;
+  padding-top:0;
+  
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.hero-btn {
+  margin-top: 20px;
+}
+
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+.feature {
+  flex: 1 1 30%;
+  background: white;
+  padding: 20px;
+  margin: 10px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.footer {
+  background: #003c26;
+  color: white;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.form-container {
+  background: white;
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 30px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+label {
+  display: block;
+  margin: 15px 0 5px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button.btn {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.error {
+  color: #b30000;
+  font-size: 14px;
+  margin-top: -10px;
+}
+.success-message {
+  text-align: center;
+}
