@@ -1,43 +1,42 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-$submitted = false;
-$errors = [];
+if (session_status() === PHP_SESSION_NONE) session_start();
 
 $conn = new mysqli("localhost", "root", "", "nelfund_db");
 if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+$errors = [];
+$submitted = false;
+
+// AJAX submission handler
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_SERVER["HTTP_X_REQUESTED_WITH"])) {
+    header("Content-Type: application/json");
+
     $user_id = $_SESSION["user_id"] ?? null;
 
-    // Sanitize inputs
-    $fullname = trim($_POST["fullname"] ?? "");
+    $fullname = $_POST["fullname"] ?? "";
     $dob = $_POST["dob"] ?? "";
     $gender = $_POST["gender"] ?? "";
-    $nationality = trim($_POST["nationality"] ?? "");
-    $email = trim($_POST["email"] ?? "");
-    $phone = trim($_POST["phone"] ?? "");
-    $address = trim($_POST["address"] ?? "");
-    $nin = trim($_POST["nin"] ?? "");
-    $bvn = trim($_POST["bvn"] ?? "");
-    $education = trim($_POST["education"] ?? "");
-    $institution = trim($_POST["institution"] ?? "");
-    $graduation_year = trim($_POST["graduation_year"] ?? "");
-    $field_of_study = trim($_POST["field_of_study"] ?? "");
-    $business_name = trim($_POST["business_name"] ?? "");
-    $sector = trim($_POST["sector"] ?? "");
-    $project_title = trim($_POST["project_title"] ?? "");
-    $description = trim($_POST["description"] ?? "");
-    $amount_requested = trim($_POST["amount_requested"] ?? "");
+    $nationality = $_POST["nationality"] ?? "";
+    $email = $_POST["email"] ?? "";
+    $phone = $_POST["phone"] ?? "";
+    $address = $_POST["address"] ?? "";
+    $nin = $_POST["nin"] ?? "";
+    $bvn = $_POST["bvn"] ?? "";
+    $education = $_POST["education"] ?? "";
+    $institution = $_POST["institution"] ?? "";
+    $graduation_year = $_POST["graduation_year"] ?? "";
+    $field_of_study = $_POST["field_of_study"] ?? "";
+    $business_name = $_POST["business_name"] ?? "";
+    $sector = $_POST["sector"] ?? "";
+    $project_title = $_POST["project_title"] ?? "";
+    $description = $_POST["description"] ?? "";
+    $amount_requested = $_POST["amount_requested"] ?? "";
     $declaration = isset($_POST["declaration"]);
     $status = "Under Review";
 
-    // Validation
     if (!$user_id) $errors[] = "User session is missing.";
     if (!$fullname) $errors[] = "Full name is required.";
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Valid email is required.";
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Valid email required.";
     if (!$phone) $errors[] = "Phone number is required.";
     if (!$dob || !$gender || !$nationality) $errors[] = "Complete personal info is required.";
     if (!$nin || !$bvn) $errors[] = "NIN and BVN are required.";
@@ -59,27 +58,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $business_name, $sector, $project_title, $description, $amount_requested, $status
         );
 
-        if ($stmt->execute()) {
-            $submitted = true;
-
-            // AJAX success response
-            if (isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-                echo "<div class='success'><h4>✅ Application Submitted!</h4><p>Your application is under review.</p></div>
-                <script>
-                  document.dispatchEvent(new CustomEvent('applicationSubmitted'));
-                </script>";
-                exit();
-            }
-        } else {
-            $errors[] = "Database error: " . $stmt->error;
-        }
-
+        $stmt->execute();
         $stmt->close();
+
+        echo json_encode(["success" => true]);
+        exit;
+    } else {
+        echo json_encode(["success" => false, "errors" => $errors]);
+        exit;
     }
 }
+
+// Only show form if not an AJAX request
+if ($_SERVER["REQUEST_METHOD"] !== "POST"):
 ?>
 
-<!-- Styles -->
 <style>
   label { display: block; margin-top: 15px; font-weight: bold; }
   input, select, textarea {
@@ -100,91 +93,79 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   }
   .btn:hover { background: #1b5e20; }
   .error { color: red; }
-  .success { color: green; text-align: center; }
 </style>
 
-<!-- HTML Output -->
 <div class="container">
-  <?php if ($submitted): ?>
-    <div class="success">
-      <h2>✅ Application Submitted!</h2>
-      <p>Your grant application has been received and is under review.</p>
-    </div>
-  <?php else: ?>
-    <h2>Grant Application Form</h2>
-    <?php foreach ($errors as $e): ?>
-      <p class="error"><?= htmlspecialchars($e) ?></p>
-    <?php endforeach; ?>
+  <h2>Grant Application Form</h2>
+  <form id="grantForm">
+    <h3>Personal Information</h3>
+    <label>Full Name</label>
+    <input type="text" name="fullname" required>
 
-    <form method="POST" id="grantForm">
-      <h3>Personal Information</h3>
-      <label>Full Name</label>
-      <input type="text" name="fullname" value="<?= htmlspecialchars($fullname ?? "") ?>" required>
+    <label>Date of Birth</label>
+    <input type="date" name="dob" required>
 
-      <label>Date of Birth</label>
-      <input type="date" name="dob" value="<?= htmlspecialchars($dob ?? "") ?>" required>
+    <label>Gender</label>
+    <select name="gender">
+      <option value="">Select</option>
+      <option>Male</option>
+      <option>Female</option>
+      <option>Other</option>
+    </select>
 
-      <label>Gender</label>
-      <select name="gender">
-        <option value="">Select</option>
-        <option <?= ($gender ?? "") == "Male" ? "selected" : "" ?>>Male</option>
-        <option <?= ($gender ?? "") == "Female" ? "selected" : "" ?>>Female</option>
-        <option <?= ($gender ?? "") == "Other" ? "selected" : "" ?>>Other</option>
-      </select>
+    <label>Nationality</label>
+    <input type="text" name="nationality">
 
-      <label>Nationality</label>
-      <input type="text" name="nationality" value="<?= htmlspecialchars($nationality ?? "") ?>">
+    <label>Email Address</label>
+    <input type="email" name="email" required>
 
-      <label>Email Address</label>
-      <input type="email" name="email" value="<?= htmlspecialchars($email ?? "") ?>" required>
+    <label>Phone Number</label>
+    <input type="text" name="phone" required>
 
-      <label>Phone Number</label>
-      <input type="text" name="phone" value="<?= htmlspecialchars($phone ?? "") ?>" required>
+    <label>Home Address</label>
+    <input type="text" name="address">
 
-      <label>Home Address</label>
-      <input type="text" name="address" value="<?= htmlspecialchars($address ?? "") ?>">
+    <label>NIN</label>
+    <input type="text" maxlength="11" name="nin" required>
 
-      <label>NIN</label>
-      <input type="text" maxlength="11" name="nin" value="<?= htmlspecialchars($nin ?? "") ?>" required>
+    <label>BVN</label>
+    <input type="password" maxlength="11" name="bvn" required>
 
-      <label>BVN</label>
-      <input type="password" maxlength="11" name="bvn" value="<?= htmlspecialchars($bvn ?? "") ?>" required>
+    <h3>Education / Background</h3>
+    <label>Highest Qualification</label>
+    <input type="text" name="education">
 
-      <h3>Education / Background</h3>
-      <label>Highest Qualification</label>
-      <input type="text" name="education" value="<?= htmlspecialchars($education ?? "") ?>">
+    <label>Institution Attended</label>
+    <input type="text" name="institution">
 
-      <label>Institution Attended</label>
-      <input type="text" name="institution" value="<?= htmlspecialchars($institution ?? "") ?>">
+    <label>Year of Graduation</label>
+    <input type="text" name="graduation_year">
 
-      <label>Year of Graduation</label>
-      <input type="text" name="graduation_year" value="<?= htmlspecialchars($graduation_year ?? "") ?>">
+    <label>Field of Study</label>
+    <input type="text" name="field_of_study">
 
-      <label>Field of Study</label>
-      <input type="text" name="field_of_study" value="<?= htmlspecialchars($field_of_study ?? "") ?>">
+    <h3>Project or Business Information</h3>
+    <label>Business/Project Name</label>
+    <input type="text" name="business_name">
 
-      <h3>Project or Business Information</h3>
-      <label>Business/Project Name</label>
-      <input type="text" name="business_name" value="<?= htmlspecialchars($business_name ?? "") ?>">
+    <label>Business Sector</label>
+    <input type="text" name="sector">
 
-      <label>Business Sector</label>
-      <input type="text" name="sector" value="<?= htmlspecialchars($sector ?? "") ?>">
+    <label>Project Title</label>
+    <input type="text" name="project_title" required>
 
-      <label>Project Title</label>
-      <input type="text" name="project_title" value="<?= htmlspecialchars($project_title ?? "") ?>" required>
+    <label>Project Description</label>
+    <textarea name="description" rows="6" required></textarea>
 
-      <label>Project Description</label>
-      <textarea name="description" rows="6" required><?= htmlspecialchars($description ?? "") ?></textarea>
+    <label>Amount Requested (₦)</label>
+    <input type="text" name="amount_requested" required>
 
-      <label>Amount Requested (₦)</label>
-      <input type="text" name="amount_requested" value="<?= htmlspecialchars($amount_requested ?? "") ?>" required>
+    <label>
+      <input type="checkbox" name="declaration" value="yes">
+      I confirm that the information provided above is accurate to the best of my knowledge.
+    </label>
 
-      <label>
-        <input type="checkbox" name="declaration" value="yes" <?= $declaration ? "checked" : "" ?>>
-        I confirm that the information provided above is accurate to the best of my knowledge.
-      </label>
-
-      <button type="submit" class="btn">Submit Grant Application</button>
-    </form>
-  <?php endif; ?>
+    <button type="submit" class="btn">Submit Grant Application</button>
+  </form>
 </div>
+<?php endif; ?>
