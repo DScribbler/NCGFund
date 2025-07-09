@@ -4,7 +4,6 @@ $submitted = false;
 $errors = [];
 
 try {
-  // Connect to MySQL database
   $conn = new PDO("mysql:host=localhost;dbname=nelfund_db", "root", "");
   $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
@@ -23,6 +22,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Valid email required.";
   if (!$nin) $errors[] = "NIN is required.";
   if (!$bvn) $errors[] = "BVN is required.";
+
+  // Check if email already exists
+  if (!$errors) {
+    $stmt = $conn->prepare("SELECT id FROM applicants WHERE email = ?");
+    $stmt->execute([$email]);
+    if ($stmt->rowCount() > 0) {
+      $errors[] = "This email is already registered.";
+    }
+  }
 
   if (!$errors) {
     $stmt = $conn->prepare("INSERT INTO applicants (name, phone, email, nin, bvn) VALUES (?, ?, ?, ?, ?)");
@@ -50,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       width: 100%;
       padding: 10px;
       margin-top: 6px;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
       border: 1px solid #ccc;
       border-radius: 5px;
     }
@@ -72,19 +80,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       text-align: center;
       color: green;
     }
+    #emailStatus {
+      font-size: 14px;
+      margin-top: -10px;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
-
 
   <div class="form-container">
     <?php if ($submitted): ?>
       <div class="success-message">
         <h2>Account successfully created!</h2>
-        <a href="login.php"><p>proceed to the login page</p></a>
+        <a href="login.php"><p>Proceed to the login page</p></a>
       </div>
     <?php else: ?>
-      <form method="POST">
+      <form method="POST" id="registerForm">
         <h2>National Credit Guarantee Fund Registration</h2>
         <?php foreach ($errors as $e): ?>
           <p class="error"><?= htmlspecialchars($e) ?></p>
@@ -96,7 +108,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           <input type="text" name="phone" value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
         </label>
         <label>Email
-          <input type="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+          <input type="email" name="email" id="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+          <div id="emailStatus"></div>
         </label>
         <label>NIN
           <input type="text" maxlength="11" name="nin" value="<?= htmlspecialchars($_POST['nin'] ?? '') ?>">
@@ -108,5 +121,31 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       </form>
     <?php endif; ?>
   </div>
+
+  <script>
+    document.getElementById("email").addEventListener("input", function () {
+      const email = this.value;
+      const status = document.getElementById("emailStatus");
+
+      if (!email.includes("@")) {
+        status.textContent = "";
+        return;
+      }
+
+      fetch("check_email.php?email=" + encodeURIComponent(email))
+        .then(response => response.text())
+        .then(data => {
+          if (data === "exists") {
+            status.textContent = "⚠️ Email already registered";
+            status.style.color = "red";
+          } else if (data === "available") {
+            status.textContent = "✅ Email is available";
+            status.style.color = "green";
+          } else {
+            status.textContent = "";
+          }
+        });
+    });
+  </script>
 </body>
 </html>
