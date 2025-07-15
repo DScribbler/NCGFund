@@ -3,12 +3,7 @@
 $submitted = false;
 $errors = [];
 
-try {
-  $conn = new PDO("mysql:host=localhost;dbname=nelfund_db", "root", "");
-  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-  die("Connection failed: " . $e->getMessage());
-}
+include 'db_connect.php';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
   $name = $_POST["name"] ?? "";
@@ -25,11 +20,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
   // Check if email already exists
   if (!$errors) {
-    $stmt = $conn->prepare("SELECT id FROM applicants WHERE email = ?");
-    $stmt->execute([$email]);
-    if ($stmt->rowCount() > 0) {
-      $errors[] = "This email is already registered.";
-    }
+   $stmt = $conn->prepare("SELECT id FROM applicants WHERE email = ?");
+$stmt->bind_param("s", $email);
+$stmt->execute();
+$stmt->store_result();
+if ($stmt->num_rows > 0) {
+  $errors[] = "This email is already registered.";
+}
+
   }
 
   if (!$errors) {
