@@ -1,15 +1,9 @@
  <?php include 'header.php'; ?>
 <?php
 session_start();
-$errors = [];
+require_once "db_connect.php"; // Assumes $conn is defined here (mysqli)
 
-try {
-  // Connect to MySQL database
-  $conn = new PDO("mysql:host=localhost;dbname=nelfund_db", "root", "");
-  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-  die("Connection failed: " . $e->getMessage());
-}
+$errors = [];
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
   $email = $_POST["email"] ?? "";
@@ -20,20 +14,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
   if (!$errors) {
     $stmt = $conn->prepare("SELECT id, name FROM applicants WHERE email = ? AND bvn = ?");
-    $stmt->execute([$email, $bvn]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt->bind_param("ss", $email, $bvn);
+    $stmt->execute();
+    $stmt->store_result();
 
-    if ($user) {
-      $_SESSION["user_id"] = $user["id"];
-      $_SESSION["user_name"] = $user["name"];
+    if ($stmt->num_rows > 0) {
+      $stmt->bind_result($id, $name);
+      $stmt->fetch();
+
+      $_SESSION["user_id"] = $id;
+      $_SESSION["user_name"] = $name;
       header("Location: dashboard.php");
       exit();
     } else {
       $errors[] = "Invalid email or BVN.";
     }
+
+    $stmt->close();
   }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
