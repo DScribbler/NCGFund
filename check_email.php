@@ -2,7 +2,10 @@
 if (!isset($_GET['email'])) exit;
 
 $email = $_GET['email'];
-$conn = new PDO("mysql:host=localhost;dbname=nelfund_db", "root", "");
+
+// Use external PDO database connection
+require_once 'db_connect.php'; // assumes $conn is defined as a PDO instance
+
 $stmt = $conn->prepare("SELECT id FROM applicants WHERE email = ?");
 $stmt->execute([$email]);
 
