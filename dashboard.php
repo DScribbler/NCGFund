@@ -5,10 +5,7 @@ if (!isset($_SESSION["user_id"])) {
   exit();
 }
 
-$conn = new mysqli("localhost", "root", "", "nelfund_db");
-if ($conn->connect_error) {
-  die("Database connection failed: " . $conn->connect_error);
-}
+include 'db_connect.php';
 
 $user_id = $_SESSION["user_id"];
 $sql = "SELECT * FROM applicants WHERE id = ?";
