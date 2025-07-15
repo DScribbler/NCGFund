@@ -1,12 +1,14 @@
 <?php
 session_start();
-$conn = new mysqli("localhost", "root", "", "nelfund_db");
+if (!isset($_SESSION["user_id"])) exit;
+
+require_once "db_connect.php"; // External PDO connection
+
 $user_id = $_SESSION["user_id"];
 
-$grant_stmt = $conn->prepare("SELECT * FROM grant_applications WHERE user_id = ?");
-$grant_stmt->bind_param("i", $user_id);
-$grant_stmt->execute();
-$grant = $grant_stmt->get_result()->fetch_assoc();
+$stmt = $conn->prepare("SELECT * FROM grant_applications WHERE user_id = ?");
+$stmt->execute([$user_id]);
+$grant = $stmt->fetch(PDO::FETCH_ASSOC);
 
 function star_middle($value) {
   $len = strlen($value);
